@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +13,10 @@ public class GameManager : MonoBehaviour
     public GameObject gameobject_mat_in_hand;
     public GameObject current_arrow;
     public GameObject[] all_arrows = new GameObject[99];
+    public GameObject tooltip;
+    public GameObject game;
+    public GameObject clues;
+    public Text tooltip_text;
     public GameObject arrow_prefab;
     public int[] all_arrow_destinations = new int[99];
     public Material material_in_hand;
@@ -22,15 +27,18 @@ public class GameManager : MonoBehaviour
     public bool has_material_in_hand;
     public bool setting_movement;
     public bool first_setting_movement;
+    public bool use_tooltip;
     public int gridSize;
     public int gridProgression;
     public int holding_index;
     public bool right_click;
     public int crafting_size = 9;
     public Vector3 setting_movement_origin;
+    public string tt_text;
     // Start is called before the first frame update
     void Start()
     {
+        use_tooltip = false;
         unlocked_materials = new bool[35];
         for(int i = 0; i < 99; i++)
         {
@@ -49,6 +57,16 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        tooltip_text.text = tt_text;
+        tooltip.transform.position = Input.mousePosition;
+        if (use_tooltip == true)
+        {
+            tooltip.transform.localScale = new Vector3(1, 1, 1);
+        }
+        else
+        {
+            tooltip.transform.localScale = new Vector3(0, 0, 0);
+        } 
         switch (gridProgression)
         {
             case 0:
@@ -102,6 +120,7 @@ public class GameManager : MonoBehaviour
             current_arrow.GetComponent<RectTransform>().sizeDelta = new Vector2(Vector3.Distance(current_arrow.transform.position,Input.mousePosition), 3);
             current_arrow.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, Mathf.Atan2(current_arrow.transform.position.y - Input.mousePosition.y, current_arrow.transform.position.x - Input.mousePosition.x) * Mathf.Rad2Deg+180));
         }
+        use_tooltip = false;
     }
     public void Transmute()
     {
@@ -116,5 +135,19 @@ public class GameManager : MonoBehaviour
             }
             if (tables_same) { unlocked_materials[recipies[i].reward_idx] = true; } 
         }
+    }
+    public void MoveToClues()
+    {
+        game.transform.DOMoveX(920, 1, false).SetEase(Ease.InOutSine);
+        clues.transform.DOMoveX(920, 1, false).SetEase(Ease.InOutSine);
+    }
+    public void MoveToStation()
+    {
+        game.transform.DOMoveX(0, 1, false).SetEase(Ease.InOutSine);
+        clues.transform.DOMoveX(0, 1, false).SetEase(Ease.InOutSine);
+    }
+    public void ScaleClue(GameObject clue)
+    {
+        clue.transform.DOScaleY(1, 0.75f).SetEase(Ease.OutExpo);
     }
 }
