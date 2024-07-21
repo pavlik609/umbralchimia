@@ -48,6 +48,10 @@ public class Pedestal : MonoBehaviour
                 }
             }
         }
+        if(transform.Find("Lighting_img") != null)
+        {
+            transform.Find("Lighting_img").position = Camera.main.ScreenToWorldPoint(transform.position);
+        }
     }
     public void Clicked()
     {
@@ -83,6 +87,7 @@ public class Pedestal : MonoBehaviour
             GameManager._gm.current_arrow.GetComponent<RectTransform>().sizeDelta = new Vector2(Vector3.Distance(GameManager._gm.current_arrow.transform.position, transform.position), 3);
             GameManager._gm.current_arrow.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, Mathf.Atan2(GameManager._gm.current_arrow.transform.position.y - transform.position.y, GameManager._gm.current_arrow.transform.position.x - transform.position.x) * Mathf.Rad2Deg + 180));
             GameManager._gm.all_arrow_destinations[GameManager._gm.holding_index] = index;
+            GameManager._gm.current_arrow.transform.Find("arrow_head").position = transform.position;
             GameManager._gm.setting_movement = false;
             GameManager._gm.first_setting_movement = false;
             GameManager._gm.holding_index = -1;

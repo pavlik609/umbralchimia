@@ -124,7 +124,7 @@ public class GameManager : MonoBehaviour
                 gameobject_mat_in_hand.transform.SetAsLastSibling();
                 has_material_in_hand = true;
             }
-            gameobject_mat_in_hand.transform.position = Input.mousePosition;
+            gameobject_mat_in_hand.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         }
         if (setting_movement == true && first_setting_movement == false && all_arrows[holding_index] == null)
         {
