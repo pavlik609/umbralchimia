@@ -56,14 +56,17 @@ public class Pedestal : MonoBehaviour
             holding = GameManager._gm.gameobject_mat_in_hand;
             GameManager._gm.table[index] = GameManager._gm.material_in_hand;
             GameManager._gm.gameobject_mat_in_hand = null;
-            GameManager._gm.material_in_hand = null;
+            if (!Input.GetKey(KeyCode.LeftShift))
+            {
+                GameManager._gm.material_in_hand = null;
+            }
             GameManager._gm.has_material_in_hand = false;
             holding.transform.SetParent(transform);
             holding.transform.localPosition = new Vector3(0, 0, 0);
         }else if(holding != null && GameManager._gm.gameobject_mat_in_hand == null && GameManager._gm.setting_movement == false)
         {
             GameManager._gm.setting_movement = true;
-            GameManager._gm.setting_movement_origin = transform.localPosition;
+            GameManager._gm.setting_movement_origin = transform.position;
             GameManager._gm.holding_index = index;
         }
         else if (holding != null && GameManager._gm.gameobject_mat_in_hand == null && GameManager._gm.setting_movement == true && GameManager._gm.holding_index == index)
