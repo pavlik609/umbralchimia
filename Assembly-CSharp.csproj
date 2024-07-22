@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\PerlinNoiseTexture.cs" />
     <Compile Include="Assets\Scripts\MenuManager.cs" />
+    <Compile Include="Assets\Scripts\LightFluctuation.cs" />
     <Compile Include="Assets\Scripts\ElementButtonActive.cs" />
     <Compile Include="Assets\Scripts\GridBehaviour.cs" />
     <Compile Include="Assets\Scripts\Pedestal.cs" />

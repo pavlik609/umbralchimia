@@ -27,27 +27,25 @@ public class Pedestal : MonoBehaviour
     }
 
     // Update is called once per frame
+    void OnMouseOver()
+    {
+        if (GameManager._gm.right_click)
+        {
+            Destroy(holding);
+            holding = null;
+            Destroy(GameManager._gm.all_arrows[index]);
+            GameManager._gm.table[index] = null;
+            GameManager._gm.all_arrows[index] = null;
+            GameManager._gm.current_arrow = null;
+            GameManager._gm.setting_movement = false;
+            GameManager._gm.first_setting_movement = false;
+            GameManager._gm.holding_index = -1;
+        }
+    }
     void Update()
     {
+        Vector2 screenmouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         index = transform.GetSiblingIndex();
-        if (rectTransform.rect.xMax + rectTransform.position.x >= Input.mousePosition.x && Input.mousePosition.x >= rectTransform.rect.xMin + rectTransform.position.x)
-        {
-            if (rectTransform.rect.yMax + rectTransform.position.y >= Input.mousePosition.y && Input.mousePosition.y >= rectTransform.rect.yMin + rectTransform.position.y)
-            {
-                if (GameManager._gm.right_click)
-                {
-                    Destroy(holding);
-                    holding = null;
-                    Destroy(GameManager._gm.all_arrows[index]);
-                    GameManager._gm.table[index] = null;
-                    GameManager._gm.all_arrows[index] = null;
-                    GameManager._gm.current_arrow = null;
-                    GameManager._gm.setting_movement = false;
-                    GameManager._gm.first_setting_movement = false;
-                    GameManager._gm.holding_index = -1;
-                }
-            }
-        }
         if(transform.Find("Lighting_img") != null)
         {
             transform.Find("Lighting_img").position = Camera.main.ScreenToWorldPoint(transform.position);
@@ -84,7 +82,7 @@ public class Pedestal : MonoBehaviour
         }
         else if(GameManager._gm.gameobject_mat_in_hand == null && GameManager._gm.setting_movement == true && GameManager._gm.holding_index != index)
         {
-            GameManager._gm.current_arrow.GetComponent<RectTransform>().sizeDelta = new Vector2(Vector3.Distance(GameManager._gm.current_arrow.transform.position, transform.position), 3);
+            GameManager._gm.current_arrow.GetComponent<RectTransform>().sizeDelta = new Vector2(Vector3.Distance(Camera.main.WorldToScreenPoint(GameManager._gm.current_arrow.transform.position), Camera.main.WorldToScreenPoint(transform.position)), 3);
             GameManager._gm.current_arrow.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, Mathf.Atan2(GameManager._gm.current_arrow.transform.position.y - transform.position.y, GameManager._gm.current_arrow.transform.position.x - transform.position.x) * Mathf.Rad2Deg + 180));
             GameManager._gm.all_arrow_destinations[GameManager._gm.holding_index] = index;
             GameManager._gm.current_arrow.transform.Find("arrow_head").position = transform.position;

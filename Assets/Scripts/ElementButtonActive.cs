@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,10 +21,15 @@ public class ElementButtonActive : MonoBehaviour
         img = bt.GetComponent<Image>();
         rectTransform = bt.GetComponent<RectTransform>();
     }
-
+    void OnMouseOver()
+    {
+        GameManager._gm.use_tooltip = true;
+        GameManager._gm.tt_text = "Select " + _name + "?";
+    }
     // Update is called once per frame
     void Update()
     {
+        Vector2 screenmouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (GameManager._gm.unlocked_materials[0] == true || override_active)
         {
             bt.gameObject.SetActive(true);
@@ -32,14 +38,6 @@ public class ElementButtonActive : MonoBehaviour
                 bt.transform.DOScaleX(1, 0.75f).SetEase(Ease.OutExpo);
                 StartCoroutine(SwitchLayering_Corutine());
                 first = true;
-            }
-            if (rectTransform.rect.xMax + rectTransform.position.x >= Input.mousePosition.x && Input.mousePosition.x >= rectTransform.rect.xMin + rectTransform.position.x)
-            {
-                if (rectTransform.rect.yMax + rectTransform.position.y >= Input.mousePosition.y && Input.mousePosition.y >= rectTransform.rect.yMin + rectTransform.position.y)
-                {
-                    GameManager._gm.use_tooltip = true;
-                    GameManager._gm.tt_text = "Select "+ _name + "?";
-                }
             }
         }
     }

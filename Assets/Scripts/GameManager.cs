@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -70,7 +69,8 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         tooltip_text.text = tt_text;
-        tooltip.transform.position = Input.mousePosition;
+        tooltip.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        tooltip.transform.position = new Vector3(tooltip.transform.position.x, tooltip.transform.position.y, 0);
         if (use_tooltip == true && has_material_in_hand == false)
         {
             if(first_tooltip == false)
@@ -121,10 +121,12 @@ public class GameManager : MonoBehaviour
             {
                 gameobject_mat_in_hand = Instantiate(material_in_hand.prefab);
                 gameobject_mat_in_hand.transform.SetParent(GameObject.Find("Game").GetComponent<Transform>());
+                gameobject_mat_in_hand.transform.localScale = Vector3.one;
                 gameobject_mat_in_hand.transform.SetAsLastSibling();
                 has_material_in_hand = true;
             }
             gameobject_mat_in_hand.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            gameobject_mat_in_hand.transform.position = new Vector3(gameobject_mat_in_hand.transform.position.x, gameobject_mat_in_hand.transform.position.y, 0);
         }
         if (setting_movement == true && first_setting_movement == false && all_arrows[holding_index] == null)
         {
@@ -132,7 +134,9 @@ public class GameManager : MonoBehaviour
             all_arrows[holding_index] = current_arrow;
             current_arrow.GetComponent<RectTransform>().pivot = new Vector3(0, 0.5f, 0);
             current_arrow.transform.SetParent(GameObject.Find("Game").GetComponent<Transform>());
+            current_arrow.transform.localScale = Vector3.one;
             current_arrow.transform.SetAsLastSibling();
+            current_arrow.transform.SetSiblingIndex(current_arrow.transform.GetSiblingIndex() - 3);
             current_arrow.transform.position = setting_movement_origin;
             first_setting_movement = true;
         }else if(setting_movement == true && first_setting_movement == false && all_arrows[holding_index] != null)
@@ -143,10 +147,11 @@ public class GameManager : MonoBehaviour
         else if (setting_movement == true && first_setting_movement == true)
         {
             RectTransform rt = current_arrow.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(Vector3.Distance(current_arrow.transform.position,Input.mousePosition), 3);
+            rt.sizeDelta = new Vector2(Vector3.Distance(Camera.main.WorldToScreenPoint(setting_movement_origin), Input.mousePosition), 3);
             Transform head = current_arrow.transform.Find("arrow_head");
-            current_arrow.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, Mathf.Atan2(current_arrow.transform.position.y - Input.mousePosition.y, current_arrow.transform.position.x - Input.mousePosition.x) * Mathf.Rad2Deg+180));
-            head.position = Input.mousePosition;
+            current_arrow.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, Mathf.Atan2(current_arrow.transform.position.y - Camera.main.ScreenToWorldPoint(Input.mousePosition).y, current_arrow.transform.position.x - Camera.main.ScreenToWorldPoint(Input.mousePosition).x) * Mathf.Rad2Deg+180));
+            head.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            head.position = new Vector3(head.position.x, head.position.y, 0);
         }
         use_tooltip = false;
     }//TOOLTIP CHANGE 4.56
@@ -192,13 +197,13 @@ public class GameManager : MonoBehaviour
     }
     public void MoveToClues()
     {
-        game.transform.DOMoveX(920, 1, false).SetEase(Ease.InOutSine);
-        clues.transform.DOMoveX(920, 1, false).SetEase(Ease.InOutSine);
+        game.transform.DOMoveX(game.transform.position.x+12.3f, 1, false).SetEase(Ease.InOutSine);
+        clues.transform.DOMoveX(clues.transform.position.x + 12.3f, 1, false).SetEase(Ease.InOutSine);
     }
     public void MoveToStation()
     {
-        game.transform.DOMoveX(0, 1, false).SetEase(Ease.InOutSine);
-        clues.transform.DOMoveX(0, 1, false).SetEase(Ease.InOutSine);
+        game.transform.DOMoveX(game.transform.position.x - 12.3f, 1, false).SetEase(Ease.InOutSine);
+        clues.transform.DOMoveX(clues.transform.position.x - 12.3f, 1, false).SetEase(Ease.InOutSine);
     }
     public void ScaleClue(GameObject clue)
     {
