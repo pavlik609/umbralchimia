@@ -14,10 +14,12 @@ public class ElementButtonActive : MonoBehaviour
     private Transform bt;
     private Image img;
     private RectTransform rectTransform;
+    private Transform mat;
     void Start()
     {
         first = false;
         bt = transform.Find("Button");
+        mat = bt.transform.Find("mask").transform.Find("mat");
         img = bt.GetComponent<Image>();
         rectTransform = bt.GetComponent<RectTransform>();
     }
@@ -40,6 +42,7 @@ public class ElementButtonActive : MonoBehaviour
                 first = true;
             }
         }
+        bt.GetComponent<Button>().onClick.AddListener(() => { mat.transform.DORotate(new Vector3(0,0,UnityEngine.Random.Range(0,361)),0.5f).SetEase(Ease.OutQuad); });
     }
     public IEnumerator SwitchLayering_Corutine()
     {

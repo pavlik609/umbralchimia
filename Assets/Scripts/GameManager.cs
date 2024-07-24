@@ -2,9 +2,6 @@ using DG.Tweening;
 using DG.Tweening.Core;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,11 +29,14 @@ public class GameManager : MonoBehaviour
     public int crafting_size = 9;
     public bool[] unlocked_materials;
     public bool has_material_in_hand;
+    public AudioClip mus;
+    public AudioClip[] gravel_snd;
     private bool first_tooltip;
     private bool corutine_alpha_already_running = false;
+    private AudioSource src;
     [HideInInspector] public Material material_in_hand;
     [HideInInspector] public int[] all_arrow_destinations = new int[99];
-    [HideInInspector] public Material[] table = new Material[99];
+    public Material[] table = new Material[99];
     [HideInInspector] public bool setting_movement;
     [HideInInspector] public bool first_setting_movement;
     [HideInInspector] public bool use_tooltip;
@@ -46,6 +46,12 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        src = GetComponent<AudioSource>();
+        src.clip = mus;
+        src.loop = true;
+        src.pitch = 0.5f;
+        src.volume = MenuManager._mm.master_volume * MenuManager._mm.music_volume;
+        src.Play();
         use_tooltip = false;
         unlocked_materials = new bool[35];
         tooltip_content = tooltip.transform.Find("Content");
@@ -171,7 +177,7 @@ public class GameManager : MonoBehaviour
                 element_unlocked_text.text = materials[recipies[i].reward_idx + 1]._name;
                 new_element.transform.Find("Element_Img").GetComponent<Image>().sprite = Material_imgs[recipies[i].reward_idx + 1];
                 StartCoroutine(DelayedNewElement_Corutine()); }
-            else if (unlocked_materials[recipies[i].reward_idx] == true) {
+            else if (tables_same && unlocked_materials[recipies[i].reward_idx] == true) {
                 element_allreadyunlocked.GetComponent<CanvasGroup>().alpha = 1;
                 if (!corutine_alpha_already_running)
                 {
@@ -208,5 +214,21 @@ public class GameManager : MonoBehaviour
     public void ScaleClue(GameObject clue)
     {
         clue.transform.DOScaleY(1, 0.75f).SetEase(Ease.OutExpo);
+    }
+    public void ScaleX(GameObject gam)
+    {
+        gam.transform.DOScaleX(1, 0.75f).SetEase(Ease.OutExpo);
+    }
+    public void ScaleDownX(GameObject gam)
+    {
+        gam.transform.DOScaleX(0, 0.75f).SetEase(Ease.OutExpo);
+    }
+    public AudioClip randAudio(AudioClip[] clips)
+    {
+        return clips[UnityEngine.Random.Range(0, clips.Length)];
+    }
+    public void playRandSFX(AudioClip[] clips)
+    {
+        MenuManager._mm.src.PlayOneShot(randAudio(clips),MenuManager._mm.master_volume* MenuManager._mm.sfx_volume);
     }
 }
