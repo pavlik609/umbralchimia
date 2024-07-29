@@ -12,17 +12,20 @@ public class Pedestal : MonoBehaviour
     public int index;
     private Button button;
     private RectTransform rectTransform;
+    private bool once;
     // Start is called before the first frame update
     void Start()
     {
+        once = false;
+        button = GetComponent<Button>();
         rectTransform = GetComponent<RectTransform>();
-        StartCoroutine(LateStart(0.01f));
+        //StartCoroutine(LateStart(0.01f));
     }
     public IEnumerator LateStart(float sec)
     {
         yield return new WaitForSeconds(sec);
         button = GetComponent<Button>();
-        button.onClick.AddListener(delegate { Clicked(); } );
+        button.onClick.AddListener(() => { Clicked(); } );
         index = transform.GetSiblingIndex();
     }
 
@@ -34,6 +37,7 @@ public class Pedestal : MonoBehaviour
             Destroy(holding);
             holding = null;
             Destroy(GameManager._gm.all_arrows[index]);
+            GameManager._gm.all_arrow_destinations[index] = 999;
             GameManager._gm.table[index] = null;
             GameManager._gm.all_arrows[index] = null;
             GameManager._gm.current_arrow = null;
@@ -44,6 +48,12 @@ public class Pedestal : MonoBehaviour
     }
     void Update()
     {
+        if (!once)
+        {
+            button.onClick.AddListener(() => { Clicked(); });
+            once = true;
+        }
+        index = transform.GetSiblingIndex();
         Vector2 screenmouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         index = transform.GetSiblingIndex();
         if(transform.Find("Lighting_img") != null)
@@ -75,6 +85,7 @@ public class Pedestal : MonoBehaviour
         {
             GameManager._gm.all_arrows[index] = null;
             Destroy(GameManager._gm.current_arrow);
+            GameManager._gm.all_arrow_destinations[index] = 999;
             GameManager._gm.current_arrow = null;
             GameManager._gm.setting_movement = false;
             GameManager._gm.first_setting_movement = false;

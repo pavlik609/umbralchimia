@@ -6,12 +6,13 @@ using UnityEngine;
 public class ButtonElementSelect : ScriptableObject
 {
     public Material to_select;
+    public AudioClip[] snd;
     public void Select()
     {
         if (GameManager._gm.material_in_hand == null)
         {
             GameManager._gm.material_in_hand = to_select;
-            GameManager._gm.playRandSFX(GameManager._gm.gravel_snd);
+            GameManager._gm.playRandSFX(snd);
 
         }
         else if (GameManager._gm.material_in_hand == to_select)
@@ -20,7 +21,7 @@ public class ButtonElementSelect : ScriptableObject
             GameManager._gm.gameobject_mat_in_hand = null;
             GameManager._gm.material_in_hand = null;
             GameManager._gm.has_material_in_hand = false;
-            GameManager._gm.playRandSFX(GameManager._gm.gravel_snd);
+            GameManager._gm.playRandSFX(snd);
         }
     }
 }

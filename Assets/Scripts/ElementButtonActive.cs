@@ -25,14 +25,17 @@ public class ElementButtonActive : MonoBehaviour
     }
     void OnMouseOver()
     {
-        GameManager._gm.use_tooltip = true;
-        GameManager._gm.tt_text = "Select " + _name + "?";
+        if (bt.gameObject.activeSelf)
+        {
+            GameManager._gm.use_tooltip = true;
+            GameManager._gm.tt_text = "Select " + _name + "?";
+        }
     }
     // Update is called once per frame
     void Update()
     {
         Vector2 screenmouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        if (GameManager._gm.unlocked_materials[0] == true || override_active)
+        if (GameManager._gm.unlocked_materials[idx] == true || override_active)
         {
             bt.gameObject.SetActive(true);
             if (first == false)

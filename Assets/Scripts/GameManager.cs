@@ -1,5 +1,6 @@
 using DG.Tweening;
 using DG.Tweening.Core;
+using DG.Tweening.CustomPlugins;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -10,7 +11,7 @@ public class GameManager : MonoBehaviour
     public static GameManager _gm;
     public GameObject gameobject_mat_in_hand;
     public GameObject current_arrow;
-    public GameObject[] all_arrows = new GameObject[99];
+    [HideInInspector] public GameObject[] all_arrows = new GameObject[99];
     public GameObject tooltip;
     public GameObject game;
     public GameObject clues;
@@ -28,15 +29,16 @@ public class GameManager : MonoBehaviour
     public int holding_index;
     public int crafting_size = 9;
     public bool[] unlocked_materials;
+    public bool[] clue_conditions;
     public bool has_material_in_hand;
-    public AudioClip mus;
-    public AudioClip[] gravel_snd;
+    public AudioClip snd_unlocked;
+    public Sprite[] vial_anims;
     private bool first_tooltip;
     private bool corutine_alpha_already_running = false;
     private AudioSource src;
-    [HideInInspector] public Material material_in_hand;
-    [HideInInspector] public int[] all_arrow_destinations = new int[99];
-    public Material[] table = new Material[99];
+     public Material material_in_hand;
+     public int[] all_arrow_destinations = new int[99];
+     public Material[] table = new Material[99];
     [HideInInspector] public bool setting_movement;
     [HideInInspector] public bool first_setting_movement;
     [HideInInspector] public bool use_tooltip;
@@ -46,12 +48,8 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        clue_conditions = new bool[7];
         src = GetComponent<AudioSource>();
-        src.clip = mus;
-        src.loop = true;
-        src.pitch = 0.5f;
-        src.volume = MenuManager._mm.master_volume * MenuManager._mm.music_volume;
-        src.Play();
         use_tooltip = false;
         unlocked_materials = new bool[35];
         tooltip_content = tooltip.transform.Find("Content");
@@ -142,7 +140,7 @@ public class GameManager : MonoBehaviour
             current_arrow.transform.SetParent(GameObject.Find("Game").GetComponent<Transform>());
             current_arrow.transform.localScale = Vector3.one;
             current_arrow.transform.SetAsLastSibling();
-            current_arrow.transform.SetSiblingIndex(current_arrow.transform.GetSiblingIndex() - 3);
+            current_arrow.transform.SetSiblingIndex(current_arrow.transform.GetSiblingIndex() - 5);
             current_arrow.transform.position = setting_movement_origin;
             first_setting_movement = true;
         }else if(setting_movement == true && first_setting_movement == false && all_arrows[holding_index] != null)
@@ -168,12 +166,13 @@ public class GameManager : MonoBehaviour
             bool tables_same = true;
             Material[] loc_recip = recipies[i].Parse();
             int[] loc_arr = recipies[i].ParseArrow();
-            for (int j = 0; j < 10; j++){
-                if (loc_recip[j] != table[j]) { tables_same = false; }
-                if (loc_arr[j] != all_arrow_destinations[j]) { tables_same = false; }
+            for (int j = 0; j < Mathf.Pow(gridSize,2); j++){
+                if (loc_recip[j] != table[j]) { tables_same = false;  }
+                if (loc_arr[j] != all_arrow_destinations[j]) { tables_same = false;  }
             }
-            if (tables_same && unlocked_materials[recipies[i].reward_idx] == false) { unlocked_materials[recipies[i].reward_idx] = true;
+            if (tables_same == true && !unlocked_materials[recipies[i].reward_idx]) { unlocked_materials[recipies[i].reward_idx] = true;
                 new_element.transform.DOScaleX(1, 1).SetEase(Ease.OutExpo);
+                src.PlayOneShot(snd_unlocked, 0.1f);
                 element_unlocked_text.text = materials[recipies[i].reward_idx + 1]._name;
                 new_element.transform.Find("Element_Img").GetComponent<Image>().sprite = Material_imgs[recipies[i].reward_idx + 1];
                 StartCoroutine(DelayedNewElement_Corutine()); }
@@ -181,25 +180,22 @@ public class GameManager : MonoBehaviour
                 element_allreadyunlocked.GetComponent<CanvasGroup>().alpha = 1;
                 if (!corutine_alpha_already_running)
                 {
-                    StartCoroutine(FadeUI_Corutine());
+                    DOTween.Kill(element_allreadyunlocked.GetComponent<CanvasGroup>());
+                    element_allreadyunlocked.GetComponent<CanvasGroup>().alpha = 1;
+                    element_allreadyunlocked.GetComponent<CanvasGroup>().DOFade(0, 0.5f).SetEase(Ease.InSine);
                 }
             } 
         }
-    }
-    public IEnumerator FadeUI_Corutine()
-    {
-        corutine_alpha_already_running = true;
-        for (int i = 0; i < 11; i++)
-        {
-            yield return new WaitForSeconds(0.05f);
-            element_allreadyunlocked.GetComponent<CanvasGroup>().alpha = 1-i*0.1f;
-        }
-        corutine_alpha_already_running = false;
     }
     public IEnumerator DelayedNewElement_Corutine()
     {
         yield return new WaitForSeconds(1f);
         new_element.transform.DOScaleX(0, 1).SetEase(Ease.InExpo);
+    }
+    public IEnumerator DelayedHideCandle_Corutine(bool condition,GameObject gamobj)
+    {
+        yield return new WaitForSeconds(0.75f);
+        gamobj.SetActive(condition);
     }
     public void MoveToClues()
     {
@@ -214,6 +210,12 @@ public class GameManager : MonoBehaviour
     public void ScaleClue(GameObject clue)
     {
         clue.transform.DOScaleY(1, 0.75f).SetEase(Ease.OutExpo);
+        StartCoroutine(DelayedHideCandle_Corutine(true,clue.transform.Find("candle").transform.Find("Light2D").gameObject));
+    }
+    public void ScaleDownClue(GameObject clue)
+    {
+        clue.transform.DOScaleY(0, 0.75f).SetEase(Ease.OutExpo);
+        StartCoroutine(DelayedHideCandle_Corutine(false, clue.transform.Find("candle").transform.Find("Light2D").gameObject));
     }
     public void ScaleX(GameObject gam)
     {

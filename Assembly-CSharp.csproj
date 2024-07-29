@@ -66,10 +66,14 @@
     <Compile Include="Assets\Scripts\ElementButtonActive.cs" />
     <Compile Include="Assets\Scripts\GridBehaviour.cs" />
     <Compile Include="Assets\Scripts\Pedestal.cs" />
+    <Compile Include="Assets\Scripts\Intro.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\ScriptableObjs\Recipies\RecipieTemplate.cs" />
+    <Compile Include="Assets\Scripts\ClueActivator.cs" />
     <Compile Include="Assets\ScriptableObjs\Materials\Material.cs" />
     <Compile Include="Assets\ScriptableObjs\Buttons\ElementSelection\ButtonElementSelect.cs" />
+    <Compile Include="Assets\Scripts\AlchemicaReveal.cs" />
+    <Compile Include="Assets\Scripts\AnimationElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -21,8 +21,20 @@ public class RecipieTemplate : ScriptableObject
     {
         switch(str)
         {
-            case "Pe1":
+            case "Pu":
                 return GameManager._gm.materials[0];
+            case "Lu":
+                return GameManager._gm.materials[1];
+            case "Gl":
+                return GameManager._gm.materials[2];
+            case "Aq":
+                return GameManager._gm.materials[3];
+            case "Ig":
+                return GameManager._gm.materials[4];
+            case "Ca":
+                return GameManager._gm.materials[5];
+            case "Ob":
+                return GameManager._gm.materials[6];
             case "null":
                 return null;
             default:
@@ -48,6 +60,10 @@ public class RecipieTemplate : ScriptableObject
         string[] s_arr = s_all.Split(',');
         int[] formatted = new int[99];
         int persist_i = 0;
+        for(int i = 0; i < formatted.Length; i++)
+        {
+            formatted[i] = 999;
+        }
         foreach (string str in s_arr)
         {
             int res;
