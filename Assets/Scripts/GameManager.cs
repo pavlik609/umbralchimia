@@ -261,12 +261,13 @@ public int[] all_arrow_destinations = new int[99];
     {
         l.gameObject.GetComponent<LightFluctuation>().force_stop = true;
         l.intensity = 0.9f;
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 120; i++)
         {
-                yield return new WaitForSeconds(0.01f);
-                l.intensity += 0.01f;
+            yield return new WaitForSeconds(0.01f);
+            l.intensity += 0.01f;
+            l.pointLightOuterRadius += 22;
+            Camera.main.orthographicSize += 12;   
         }
-        yield return new WaitForSeconds(1f);
         SceneManager.LoadScene(3);
     }
     public IEnumerator DelayedNewElement_Corutine()
