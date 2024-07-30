@@ -4,6 +4,8 @@ using DG.Tweening.CustomPlugins;
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -11,7 +13,7 @@ public class GameManager : MonoBehaviour
     public static GameManager _gm;
     public GameObject gameobject_mat_in_hand;
     public GameObject current_arrow;
-    [HideInInspector] public GameObject[] all_arrows = new GameObject[99];
+     public GameObject[] all_arrows = new GameObject[99];
     public GameObject tooltip;
     public GameObject game;
     public GameObject clues;
@@ -29,16 +31,19 @@ public class GameManager : MonoBehaviour
     public int holding_index;
     public int crafting_size = 9;
     public bool[] unlocked_materials;
-    public bool[] clue_conditions;
     public bool has_material_in_hand;
     public AudioClip snd_unlocked;
     public Sprite[] vial_anims;
+    public bool resetGridChildren;
+    public Light2D main_light;
+    [SerializeField] private GameObject game_move_point;
+    [SerializeField] private GameObject clue_orig_point;
     private bool first_tooltip;
     private bool corutine_alpha_already_running = false;
     private AudioSource src;
-     public Material material_in_hand;
-     public int[] all_arrow_destinations = new int[99];
-     public Material[] table = new Material[99];
+    [HideInInspector] public Material material_in_hand;
+public int[] all_arrow_destinations = new int[99];
+ public Material[] table = new Material[99];
     [HideInInspector] public bool setting_movement;
     [HideInInspector] public bool first_setting_movement;
     [HideInInspector] public bool use_tooltip;
@@ -48,7 +53,6 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        clue_conditions = new bool[7];
         src = GetComponent<AudioSource>();
         use_tooltip = false;
         unlocked_materials = new bool[35];
@@ -70,8 +74,21 @@ public class GameManager : MonoBehaviour
         first_tooltip = false;
     }
     // Update is called once per frame
+    private void LateUpdate()
+    {
+        resetGridChildren = false;
+    }
     void Update()
     {
+        if (unlocked_materials[2])
+        {
+            gridSize = 4;
+            gridProgression = 1;
+        }
+        if (unlocked_materials[3])
+        {
+            gridProgression = 2;
+        }
         tooltip_text.text = tt_text;
         tooltip.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         tooltip.transform.position = new Vector3(tooltip.transform.position.x, tooltip.transform.position.y, 0);
@@ -143,7 +160,14 @@ public class GameManager : MonoBehaviour
             current_arrow.transform.SetSiblingIndex(current_arrow.transform.GetSiblingIndex() - 5);
             current_arrow.transform.position = setting_movement_origin;
             first_setting_movement = true;
-        }else if(setting_movement == true && first_setting_movement == false && all_arrows[holding_index] != null)
+            RectTransform rt = current_arrow.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(Vector3.Distance(Camera.main.WorldToScreenPoint(setting_movement_origin), Input.mousePosition), 3);
+            Transform head = current_arrow.transform.Find("arrow_head");
+            current_arrow.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, Mathf.Atan2(current_arrow.transform.position.y - Camera.main.ScreenToWorldPoint(Input.mousePosition).y, current_arrow.transform.position.x - Camera.main.ScreenToWorldPoint(Input.mousePosition).x) * Mathf.Rad2Deg + 180));
+            head.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            head.position = new Vector3(head.position.x, head.position.y, 0);
+        }
+        else if(setting_movement == true && first_setting_movement == false && all_arrows[holding_index] != null)
         {
             current_arrow = all_arrows[holding_index];
             first_setting_movement = true;
@@ -173,9 +197,28 @@ public class GameManager : MonoBehaviour
             if (tables_same == true && !unlocked_materials[recipies[i].reward_idx]) { unlocked_materials[recipies[i].reward_idx] = true;
                 new_element.transform.DOScaleX(1, 1).SetEase(Ease.OutExpo);
                 src.PlayOneShot(snd_unlocked, 0.1f);
-                element_unlocked_text.text = materials[recipies[i].reward_idx + 1]._name;
+                if (recipies[i].reward_idx == 6)
+                {
+                    Intro.intro.src.DOFade(0, 1);
+                    StartCoroutine(Lighter_yet_lighter(main_light));
+                    element_unlocked_text.text = "Lapis de lumine";
+                }
+                else
+                {
+                    StartCoroutine(DelayedNewElement_Corutine());
+                    element_unlocked_text.text = materials[recipies[i].reward_idx + 1]._name;
+                }
+
                 new_element.transform.Find("Element_Img").GetComponent<Image>().sprite = Material_imgs[recipies[i].reward_idx + 1];
-                StartCoroutine(DelayedNewElement_Corutine()); }
+                for(int k = 0; k < 99; k++)
+                {
+                    table[k] = null;
+                    all_arrow_destinations[k] = 999;
+                    Destroy(all_arrows[k]);
+                    all_arrows[k] = null;
+                }
+                resetGridChildren = true;
+                }
             else if (tables_same && unlocked_materials[recipies[i].reward_idx] == true) {
                 element_allreadyunlocked.GetComponent<CanvasGroup>().alpha = 1;
                 if (!corutine_alpha_already_running)
@@ -187,6 +230,45 @@ public class GameManager : MonoBehaviour
             } 
         }
     }
+    public void TestWin()
+    {
+        unlocked_materials[recipies[6].reward_idx] = true;
+        new_element.transform.DOScaleX(1, 1).SetEase(Ease.OutExpo);
+        src.PlayOneShot(snd_unlocked, 0.1f);
+        if (recipies[6].reward_idx == 6)
+        {
+            Intro.intro.src.DOFade(0, 1);
+            StartCoroutine(Lighter_yet_lighter(main_light));
+            element_unlocked_text.text = "Lapis de lumine";
+        }
+        else
+        {
+            StartCoroutine(DelayedNewElement_Corutine());
+            element_unlocked_text.text = materials[recipies[6].reward_idx + 1]._name;
+        }
+
+        new_element.transform.Find("Element_Img").GetComponent<Image>().sprite = Material_imgs[recipies[6].reward_idx + 1];
+        for (int k = 0; k < 99; k++)
+        {
+            table[k] = null;
+            all_arrow_destinations[k] = 999;
+            Destroy(all_arrows[k]);
+            all_arrows[k] = null;
+        }
+        resetGridChildren = true;
+    }
+    public IEnumerator Lighter_yet_lighter(Light2D l) //you win !!!!
+    {
+        l.gameObject.GetComponent<LightFluctuation>().force_stop = true;
+        l.intensity = 0.9f;
+        for (int i = 0; i < 100; i++)
+        {
+                yield return new WaitForSeconds(0.01f);
+                l.intensity += 0.01f;
+        }
+        yield return new WaitForSeconds(1f);
+        SceneManager.LoadScene(3);
+    }
     public IEnumerator DelayedNewElement_Corutine()
     {
         yield return new WaitForSeconds(1f);
@@ -197,15 +279,25 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.75f);
         gamobj.SetActive(condition);
     }
-    public void MoveToClues()
+    public void MoveClues()
     {
-        game.transform.DOMoveX(game.transform.position.x+12.3f, 1, false).SetEase(Ease.InOutSine);
-        clues.transform.DOMoveX(clues.transform.position.x + 12.3f, 1, false).SetEase(Ease.InOutSine);
+        game.transform.DOMoveX(game_move_point.transform.position.x, 1, false).SetEase(Ease.InOutSine);
+        clues.transform.DOMoveX(game.transform.position.x, 1, false).SetEase(Ease.InOutSine);
     }
-    public void MoveToStation()
+    public void MoveAlchemic()
     {
-        game.transform.DOMoveX(game.transform.position.x - 12.3f, 1, false).SetEase(Ease.InOutSine);
-        clues.transform.DOMoveX(clues.transform.position.x - 12.3f, 1, false).SetEase(Ease.InOutSine);
+        game.transform.DOMoveX(clues.transform.position.x, 1, false).SetEase(Ease.InOutSine);
+        clues.transform.DOMoveX(clue_orig_point.transform.position.x, 1, false).SetEase(Ease.InOutSine);
+    }
+    public void disableOneSecButt(Button bt)
+    {
+        StartCoroutine(disableButton_Corutine(bt));
+    }
+    public IEnumerator disableButton_Corutine(Button bt)
+    {
+        bt.interactable = false;
+        yield return new WaitForSeconds(1);
+        bt.interactable = true;
     }
     public void ScaleClue(GameObject clue)
     {

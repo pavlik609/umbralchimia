@@ -60,6 +60,11 @@ public class Pedestal : MonoBehaviour
         {
             transform.Find("Lighting_img").position = Camera.main.ScreenToWorldPoint(transform.position);
         }
+        if (GameManager._gm.resetGridChildren)
+        {
+            Destroy(holding);
+            holding = null;
+        }
     }
     public void Clicked()
     {

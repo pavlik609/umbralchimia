@@ -70,10 +70,12 @@
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\ScriptableObjs\Recipies\RecipieTemplate.cs" />
     <Compile Include="Assets\Scripts\ClueActivator.cs" />
+    <Compile Include="Assets\Scripts\EarthRotate.cs" />
     <Compile Include="Assets\ScriptableObjs\Materials\Material.cs" />
     <Compile Include="Assets\ScriptableObjs\Buttons\ElementSelection\ButtonElementSelect.cs" />
     <Compile Include="Assets\Scripts\AlchemicaReveal.cs" />
     <Compile Include="Assets\Scripts\AnimationElement.cs" />
+    <Compile Include="Assets\Scripts\TitleSinPos.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
